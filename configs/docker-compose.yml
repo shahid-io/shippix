@@ -11,6 +11,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shippix -d shippix_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7
@@ -35,12 +40,24 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  auth-service:
+    build:
+      context: ..
+      dockerfile: deployments/docker/auth-service/Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      - DB_HOST=postgres
+      - KAFKA_BROKERS=kafka:9092
   shipment-service:
     build:
       context: ..
       dockerfile: deployments/docker/shipment-service/Dockerfile
     ports:
-      - "8081:8081"
+      - "8082:8082"
     depends_on:
       - postgres
       - kafka
@@ -53,7 +70,7 @@ services:
       context: ..
       dockerfile: deployments/docker/tracking-service/Dockerfile
     ports:
-      - "8082:8082"
+      - "8083:8083"
     depends_on:
       - postgres
       - kafka
@@ -66,7 +83,7 @@ services:
       context: ..
       dockerfile: deployments/docker/courier-service/Dockerfile
     ports:
-      - "8083:8083"
+      - "8084:8084"
     depends_on:
       - postgres
       - kafka
@@ -79,7 +96,7 @@ services:
       context: ..
       dockerfile: deployments/docker/notification-service/Dockerfile
     ports:
-      - "8084:8084"
+      - "8085:8085"
     depends_on:
       - kafka
     environment:
@@ -90,7 +107,7 @@ services:
       context: ..
       dockerfile: deployments/docker/route-service/Dockerfile
     ports:
-      - "8085:8085"
+      - "8086:8086"
     depends_on:
       - kafka
     environment:
