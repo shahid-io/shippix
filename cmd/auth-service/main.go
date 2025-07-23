@@ -13,7 +13,8 @@ import (
 )
 
 func main() {
-	dsn := "host=localhost user=shippix password=password dbname=shippix_db port=5432 sslmode=disable"
+	// dsn := "host=localhost user=shippix password=password dbname=shippix_db port=5432 sslmode=disable"
+	dsn := "host=postgres user=shippix password=password dbname=shippix_db port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -24,9 +25,10 @@ func main() {
 	handler := handlers.NewAuthHandler(svc)
 
 	r := gin.Default()
+	r.GET("/health", handler.HealthCheck)
 	r.POST("/auth/signup", handler.Signup)
 	r.POST("/auth/login", handler.Login)
 
-	fmt.Println("Auth service running on :8089")
-	r.Run(":8089")
+	fmt.Println("Auth service running on :8081")
+	r.Run(":8081")
 }
