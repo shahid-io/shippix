@@ -2,12 +2,13 @@ package service
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 
-	"golang.org/x/crypto/bcrypt"
 	"github.com/shahid-io/shippix/internal/auth/repository"
 	"github.com/shahid-io/shippix/internal/common/auth"
 	"github.com/shahid-io/shippix/pkg/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
@@ -30,7 +31,9 @@ func (s *AuthService) Login(emailOrPhone, password string) (string, error) {
 		}
 	}
 
-	return auth.GenerateToken(user.ID, user.Role)
+	// Convert user.ID (uint/int) to string
+	idStr := strconv.FormatUint(uint64(user.ID), 10)
+	return auth.GenerateToken(idStr, user.Role)
 }
 
 func (s *AuthService) Signup(user *models.User) (string, error) {
@@ -50,5 +53,7 @@ func (s *AuthService) Signup(user *models.User) (string, error) {
 		return "", err
 	}
 
-	return auth.GenerateToken(user.ID, user.Role)
+	// Convert user.ID (uint/int) to string
+	idStr := strconv.FormatUint(uint64(user.ID), 10)
+	return auth.GenerateToken(idStr, user.Role)
 }

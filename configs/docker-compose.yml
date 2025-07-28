@@ -1,4 +1,4 @@
-version: "3.8"
+
 
 services:
   postgres:
@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U shippix -d shippix_db"]
+      test: [ "CMD-SHELL", "pg_isready -U shippix -d shippix_db" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -49,6 +49,8 @@ services:
     depends_on:
       - postgres
       - kafka
+    env_file:
+      - ../configs/.env
     environment:
       - DB_HOST=postgres
       - KAFKA_BROKERS=kafka:9092
@@ -112,6 +114,13 @@ services:
       - kafka
     environment:
       - KAFKA_BROKERS=kafka:9092
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ../migrations:/migrations
+    command: [ "-path", "/migrations", "-database", "postgres://shippix:password@postgres:5432/shippix_db?sslmode=disable", "up" ]
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:

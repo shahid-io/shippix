@@ -84,3 +84,8 @@ docker logs
 **to troubleshoot service startup problems.**
 
 Happy shipping!
+
+
+- rough
+logs : docker-compose -f configs/docker-compose.yml logs -f
+
